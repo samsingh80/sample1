@@ -1,0 +1,95 @@
+_schema-version: "3.2"
+ID: fileupload
+description: A Fiori application for File Upload
+version: 0.0.1
+modules:
+- name: fileupload-dest-content
+  type: com.sap.application.content
+  requires:
+  - name: fileupload-dest-srv
+    parameters:
+      content-target: true
+  - name: fileupload-repo-host
+    parameters:
+      service-key:
+        name: fileupload-repo-host-key
+  - name: fileupload-uaa
+    parameters:
+      service-key:
+        name: fileupload-uaa-key
+
+  parameters:
+    content:
+      subaccount:
+        destinations:
+        - Name: fileupload_repo_host
+          ServiceInstanceName: fileupload-html5-srv
+          ServiceKeyName: fileupload-repo-host-key
+          sap.cloud.service: fileupload
+        - Authentication: OAuth2UserTokenExchange
+          Name: fileupload_uaa
+          ServiceInstanceName: fileupload-xsuaa-srv
+          ServiceKeyName: fileupload-uaa-key
+          sap.cloud.service: fileupload
+        existing_destinations_policy: ignore
+  build-parameters:
+    no-source: true
+- name: fileupload-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: fileupload-repo-host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - fileupload.zip
+      name: fileupload
+      target-path: resources/
+- name: fileupload
+  type: html5
+  path: .
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+resources:
+- name: fileupload-dest-srv
+  type: org.cloudfoundry.managed-service
+  parameters:
+    config:
+      HTML5Runtime_enabled: true
+      init_data:
+        instance:
+          destinations:
+          - Authentication: NoAuthentication
+            Name: ui5
+            ProxyType: Internet
+            Type: HTTP
+            URL: https://ui5.sap.com
+          existing_destinations_policy: update
+      version: 1.0.0
+    service: destination
+    service-name: fileupload-dest-srv
+    service-plan: lite
+- name: fileupload-uaa
+  type: org.cloudfoundry.managed-service
+  parameters:
+    path: ./xs-security.json
+    service: xsuaa
+    service-name: fileupload-xsuaa-srv
+    service-plan: application
+- name: fileupload-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-name: fileupload-html5-srv
+    service-plan: app-host
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true

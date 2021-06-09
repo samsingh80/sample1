@@ -1,0 +1,35 @@
+<mvc:View
+    height="100%"
+    controllerName="fileupload.controller.View1"
+    xmlns:l="sap.ui.layout"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:u="sap.ui.unified"
+    displayBlock="true"
+    xmlns="sap.m"
+    xmlns:upload="sap.m.upload"
+>
+	<Shell id="shell">
+		<App id="app">
+			<pages>
+				<Page id="page" title="{i18n>title}">
+					<content>
+                    <l:VerticalLayout>
+		                <u:FileUploader
+			                id="fileUploader"
+			                name="myFileUpload"
+			                uploadUrl="upload/"
+			                tooltip="Upload your file to the local server"
+			                uploadComplete="handleUploadComplete"/>
+		                <Button
+			                text="Upload File"
+			                press="handleUploadPress"/>
+	                </l:VerticalLayout>     
+                    </content>
+				</Page>
+			</pages>
+		</App>
+	</Shell>
+
+
+
+</mvc:View>
